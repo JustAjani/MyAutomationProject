@@ -8,8 +8,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-
 import time
+import base64
+from tqdm import tqdm  # tqdm is a library that provides a progress meter
+import sys
+import os
 
 class AniScrape:
     def __init__(self, animeName):
@@ -107,8 +110,16 @@ class AniScrape:
             except Exception as e:
                 print(f"An error occurred during episode navigation: {e}")
 
+              
             self.skipIntro()
             self.nextEpisode(self.episodeId)
+            self.quit()
+    
+    def handleIframe(self):
+        if 'iframe-embed' not in self.driver.current_url:
+                        WebDriverWait(self.driver, 5).until(
+                            EC.frame_to_be_available_and_switch_to_it((By.ID, 'iframe-embed'))
+                        )
 
     def skipIntro(self):
         try:
@@ -117,10 +128,7 @@ class AniScrape:
 
             while not introSkipped and (time.time() - start_time) < 300:
                 try:
-                    if 'iframe-embed' not in self.driver.current_url:
-                        WebDriverWait(self.driver, 5).until(
-                            EC.frame_to_be_available_and_switch_to_it((By.ID, 'iframe-embed'))
-                            )
+                    self.handleIframe()
 
                     timeText = self.driver.execute_script("""
                         var elem = document.querySelector('#vidcloud-player > div.jw-wrapper.jw-reset > div.jw-controls.jw-reset > div.jw-controlbar.jw-reset > div.jw-reset.jw-button-container > div.jw-icon.jw-icon-inline.jw-text.jw-reset.jw-text-elapsed');
@@ -165,11 +173,7 @@ class AniScrape:
             startTime = time.time()
             while not nextEp and (time.time() - startTime) < 1380:
                 try:
-                    if 'iframe-embed' not in self.driver.current_url:
-                        WebDriverWait(self.driver, 5).until(
-                            EC.frame_to_be_available_and_switch_to_it((By.ID, 'iframe-embed'))
-                        )
-
+                    self.handleIframe()
                     timeText = self.driver.execute_script("""
                         var elem = document.querySelector('#vidcloud-player > div.jw-wrapper.jw-reset > div.jw-controls.jw-reset > div.jw-controlbar.jw-reset > div.jw-reset.jw-button-container > div.jw-icon.jw-icon-inline.jw-text.jw-reset.jw-text-countdown');
                         return elem ? elem.textContent : 'not found';
@@ -187,7 +191,7 @@ class AniScrape:
                         print("Time text not in expected format:", timeText)
                         continue
 
-                    if countDownSeconds <= 600:
+                    if countDownSeconds <= 120:
                         self.driver.execute_script("var btn = document.querySelector('#next-episode'); if (btn) btn.click();")
                         episodeUrl = f"{self.animUrl}?ep={Epnum + 1}"
                         self.driver.get(episodeUrl)
@@ -205,17 +209,74 @@ class AniScrape:
             print("Countdown timer element not found.")
         except ValueError:
             print("Error processing countdown timer value.")
+        self.quit()
+    
+    def ensureDirectoryExists(self,path):
+        directory = os.path.dirname(path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+    
+    def downLoadEpisode(self, destination):
+        try:
+            self.ensureDirectoryExists(destination)
+            self.handleIframe()
+            videoSrc = self.driver.execute_script("""
+                    var video = document.querySelector('#vidcloud-player > div.jw-wrapper.jw-reset > div.jw-media.jw-reset > video')
+                    return video ? video.src : 'not found'""")
+            print(f"Video source URL: {videoSrc}")
+
+            if videoSrc == 'not found':
+                print("Video source not found.")
+                return
+            if videoSrc.startswith('blob:'):
+                dataUrl = self.driver.execute_script("""
+                    var blobUrl = arguments[0];
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', blobUrl, true);
+                    xhr.responseType = 'blob';
+                    xhr.onload = function() {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            window.dataURL = reader.result;
+                        };
+                        reader.readAsDataURL(xhr.response);
+                    };
+                    xhr.send();
+                    return 'dataURL ready';
+                """, videoSrc)
+                time.sleep(10)
+                dataUrl = self.driver.execute_script("return window.dataURL;")
+            else:
+                dataUrl = videoSrc
+            
+            if dataUrl.startswith('data:'):
+                contentType,base64Data = dataUrl.split(';',1)
+                videoData = base64.b64decode(base64Data)
+                fileExtension =contentType.split('/')[1].split(';')[0]
+
+            # Write video data to file
+                filePath = os.path.join(destination, f"downloaded_video.{fileExtension}")
+                with open(filePath, 'wb') as file:
+                    file.write(videoData)
+                print(f"Video successfully downloaded to {filePath}")
+            else:
+                print("Failed to convert Blob URL to Data URL.")
+        except Exception as e:
+            print(f"An error occurred while trying to download the episode: {e}")
 
 
     def run(self, Epnum):
         self.searchAnime()
         self.clickAnimeFromList()
         self.watchAnime(Epnum)
+        self.skipIntro()
+        self.nextEpisode(self.episodeId)
         return self.driver
 
     def quit(self):
         input("Press Enter To Exit... ")
         self.driver.quit()
+        sys.exit()
 
 animInput = input("Enter Anime Name: ")
 episodeNum = int(input("Enter Episode Number: "))
