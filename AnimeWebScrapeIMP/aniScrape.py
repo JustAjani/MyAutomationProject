@@ -8,31 +8,26 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+import datetime
 import time
 import base64
 import sys
 import os
 
 class AniScrape:
-    def __init__(self):
-        self.animeName = input("Enter Anime Name: ")
+    def __init__(self,mode):
+        if mode == 'watch':
+            self.animeName = input("Enter Anime Name: ")
+            self.episodeNum = int(input("Enter Episode Number: "))
+            self.command = input("Type 'enable' to enable auto skip intro and outro or 'disable' to disable features: ").lower()
+
         self.animUrl = None 
         self.episodeId = None
-        self.episodeNum = int(input("Enter Episode Number: "))
-        self.command = input("Type 'enable' to enable auto skip intro and outro or 'disable' to disable features: ").lower()
         service = Service(ChromeDriverManager().install())
         adblocker = Options()
-        adblocker.add_extension(r'C:\\Users\\ajani\\Downloads\\MLOMIEJDFKOLICHCFLEJCLCBMPEANIIJ_10_4_3_0.crx')  # Corrected path string with raw string literal
+        adblocker.add_extension(r'C:\\Users\\ajani\\Downloads\\MLOMIEJDFKOLICHCFLEJCLCBMPEANIIJ_10_4_3_0.crx') 
         self.driver = webdriver.Chrome(service=service, options=adblocker)
         self.driver.set_script_timeout(60)
-        
-    # def saveAnimeList(self, category):
-    #     AnimFound = []
-    #     link = []
-    #     AnimFound.append(category.text)
-    #     link.append(category.get_attribute('href'))
-    #     df = pd.DataFrame({'Anime Found': AnimFound, 'Link': link})
-    #     df.to_csv('AnimeList.csv', index=False)
 
     def searchAnime(self):
         self.driver.get('https://9animetv.to/home')
@@ -43,6 +38,44 @@ class AniScrape:
             search.send_keys(self.animeName + Keys.ENTER)
         except TimeoutException:
             print("Search bar not found on the page.")
+
+    def animeSchedule(self):
+        self.driver.get('https://9animetv.to/home')
+        
+        try:
+            seeMoreDetails = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="scl-more"]'))
+            )
+            self.driver.execute_script("arguments[0].click();", seeMoreDetails)
+            
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'swiper-wrapper'))
+            )
+            scheduleItems = self.driver.find_elements(By.CLASS_NAME, 'swiper-slide')
+
+            for item in scheduleItems:
+                scheduleDate = item.get_attribute('data-date')
+                if scheduleDate == datetime.date.today().strftime('%Y-%m-%d'):
+                    print(f"Schedule for {scheduleDate}:")
+
+                    try:
+                        scheduledTime = item.find_element(By.XPATH, '//*[@id="schedule-block"]/section/div[2]/div/ul')
+                        for scheduleEntry in scheduledTime.find_elements(By.XPATH, './/a[@class="tsl-link"]'):
+                            try:
+                                timeElement = scheduleEntry.find_element(By.XPATH, './/div[@class="time"]').text
+                                filmDetail = scheduleEntry.find_element(By.XPATH, './/h3[@class="film-name dynamic-name"]').text
+                                Episode = scheduleEntry.find_element(By.XPATH, './/button[@class="btn btn-sm btn-play"]').text
+                                print(f"Time: {timeElement} | Anime Name: {filmDetail} | Episode: {Episode}")
+                                df = pd.DataFrame({'Time': [timeElement], 'Anime Name': [filmDetail], 'Episode': [Episode]})
+                                df.to_csv('Schedule.csv', mode='a', header=False, index=False)
+                            except NoSuchElementException:
+                                print("Time or film detail or episode not found for this entry.")
+                                continue
+                    except NoSuchElementException:
+                        print("No schedule list found for this day.")
+        except TimeoutException:
+            print("Schedule not found on the page.")
+        self.quit()
 
     def clickAnimeFromList(self):
         self.driver.get(self.driver.current_url)
@@ -100,8 +133,7 @@ class AniScrape:
                     print(f"No episode found with ID {targetId}, loading episode 1 instead: {episodeUrl}")
  
                 self.driver.get(episodeUrl)
-                self.downloadBTN()
-                self.manageDownloads()
+                self.enableFeatures()
 
             except Exception as e:
                 print(f"An error occurred during episode navigation: {e}")
@@ -145,7 +177,7 @@ class AniScrape:
                             EC.element_to_be_clickable((By.ID, 'skip-intro'))
                         )
                         
-                    if SkipBTN.is_displayed and SkipBTN.is_enabled:
+                    if SkipBTN.is_displayed() and SkipBTN.is_enabled():
                         SkipBTN.click()
                         print("Intro skipped successfully.")
                         introSkipped = True
@@ -175,7 +207,7 @@ class AniScrape:
                         EC.element_to_be_clickable((By.ID, 'skip-outro'))
                     )
 
-                    if nextEp.is_displayed and nextEp.is_enabled:
+                    if nextEp.is_displayed() and nextEp.is_enabled():
                         nextEp.click()
                         skippedEp = f"{self.animUrl}?ep={self.episodeNum + 1}"
                         self.driver.get(skippedEp)
@@ -293,7 +325,6 @@ class AniScrape:
         self.searchAnime()
         self.clickAnimeFromList()
         self.watchAnime()
-        self.enableFeatures()
         return self.driver
 
     def quit(self):
@@ -301,7 +332,13 @@ class AniScrape:
         self.driver.quit()
         sys.exit()
 
-AniScrape().run()
+if __name__ == '__main__':
+    startingPrompt = input("Do You Want To Watch Anime or See Schedule? Type 'watch' or 'schedule': ").lower()
+    if startingPrompt == 'watch':
+        AniScrape(startingPrompt).run()
+    elif startingPrompt == 'schedule':
+        AniScrape(startingPrompt).animeSchedule()
+
 
 
 
