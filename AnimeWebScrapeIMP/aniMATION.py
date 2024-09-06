@@ -161,29 +161,27 @@ class AniMATION:
         except Exception as e:
             print(f"General error during intro skipping: {e}")
 
-    def nextEpisode(self):  
+    def skipOutro(self):  
         try:
-            nextEp = False
+            skipped = False
             startTime = time.time()
-            while not nextEp and (time.time() - startTime) < 1380:
+            while not skipped and (time.time() - startTime) < 1380:
                 try:
                     self.handleIframe()
         
-                    nextEp = WebDriverWait(self.driver, 10).until(
+                    skipOutro = WebDriverWait(self.driver, 10).until(
                         EC.element_to_be_clickable((By.XPATH, '//*[@id="skip-outro"]'))
                     )
 
-                    if nextEp.is_displayed() and nextEp.is_enabled():
-                        self.driver.execute_script("arguments[0].click();", nextEp)
-                        skippedEp = f"{self.animUrl}?ep={self.episodeNum + 1}"
-                        self.driver.get(skippedEp)
+                    if skipOutro.is_displayed() and skipOutro.is_enabled():
+                        skipOutro.click()
                         print("Next episode loaded successfully.")
-                        nextEp = True 
-
+                        skipped = True 
                 except Exception as e:
                     print(f"Error checking time or clicking button: {e}")
                 finally:
                     self.driver.switch_to.default_content() 
+                    skipped = False
 
         except TimeoutException:
             print("Timeout occurred waiting for countdown timer.")
@@ -199,7 +197,7 @@ class AniMATION:
             self.clickAnimeFromList()
             self.watchAnime()
         elif self.mode == 'schedule':
-            self.animeScrape.animeSchedule()
+            self.animeScrape.recentAnime()
         return self.driver
 
     def quit(self):

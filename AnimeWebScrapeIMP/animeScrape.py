@@ -4,6 +4,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import pandas as pd
 import datetime
+import os
+import requests
+import tempfile
 
 class AnimeScrape:
     def __init__(self, driver):
@@ -21,12 +24,10 @@ class AnimeScrape:
                 EC.presence_of_element_located((By.CLASS_NAME, 'swiper-wrapper'))
             )
             scheduleItems = self.driver.find_elements(By.CLASS_NAME, 'swiper-slide')
-
+            
             for item in scheduleItems:
                 scheduleDate = item.get_attribute('data-date')
                 if scheduleDate == datetime.date.today().strftime('%Y-%m-%d'):
-                    print(f"Schedule for {scheduleDate}:")
-
                     try:
                         scheduledTime = item.find_element(By.XPATH, '//*[@id="schedule-block"]/section/div[2]/div/ul')
                         for scheduleEntry in scheduledTime.find_elements(By.XPATH, './/a[@class="tsl-link"]'):
@@ -34,18 +35,41 @@ class AnimeScrape:
                                 timeElement = scheduleEntry.find_element(By.XPATH, './/div[@class="time"]').text
                                 filmDetail = scheduleEntry.find_element(By.XPATH, './/h3[@class="film-name dynamic-name"]').text
                                 episode = scheduleEntry.find_element(By.XPATH, './/button[@class="btn btn-sm btn-play"]').text
-                                print(f"Time: {timeElement} | Anime Name: {filmDetail} | Episode: {episode}")
-                                
-                                # Save the data to a CSV file
-                                df = pd.DataFrame({'Time': [timeElement], 'Anime Name': [filmDetail], 'Episode': [episode]})
-                                df.to_csv('Schedule.csv', mode='a', header=True, index=False)
+                                df = pd.DataFrame({'Time': [timeElement], 'Anime Name': [filmDetail], 'Episode': [episode]}, columns=['Time', 'Anime Name', 'Episode'])
+                                df.to_csv('MyAutomationProject\\AnimeWebScrapeIMP\\scrapeData\\schedule.csv', mode='a', header=False, index=False)
                             except NoSuchElementException:
                                 print("Time or film detail or episode not found for this entry.")
                                 continue
                     except NoSuchElementException:
                         print("No schedule list found for this day.")
+
         except TimeoutException:
             print("Schedule not found on the page.")
-        
+
         self.driver.close()
         self.driver.quit()
+    
+    def recentAnime(self):
+        self.driver.get('https://9animetv.to/home')
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//div[@class="film_list-wrap"]'))
+            )
+            animeList = self.driver.find_elements(By.XPATH, '//div[@class="flw-item item-qtip"]')
+
+            for item in animeList:
+                try:
+                    animeName = item.find_element(By.XPATH, './/h3[@class="film-name"]/a').text 
+                    animeLink = item.find_element(By.XPATH, './/h3[@class="film-name"]/a').get_attribute('href')
+                    print(f'Name: {animeName}, Link: {animeLink}')
+                    df = pd.DataFrame({'Name': [animeName], 'Link': [animeLink]})
+                    df.to_csv('MyAutomationProject\\AnimeWebScrapeIMP\\scrapeData\\recentupdate.csv', mode='a', header=False, index=False)
+                except NoSuchElementException:
+                    print("Name or link not found for this entry.")
+                    continue
+        
+        except TimeoutException:
+            print("Anime list not loaded on the page.")
+        except Exception as e:
+            print(f"Error occurred: {e}")
+
