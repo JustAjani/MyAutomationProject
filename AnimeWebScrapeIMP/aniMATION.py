@@ -26,6 +26,7 @@ class AniMATION:
             self.episodeId = None
             service = Service(ChromeDriverManager().install())
             adblocker = Options()
+            adblocker.page_load_strategy = 'eager'
             adblocker.add_extension(r'C:\\Users\\ajani\\Downloads\\MLOMIEJDFKOLICHCFLEJCLCBMPEANIIJ_10_4_3_0.crx')
             self.driver = webdriver.Chrome(service=service, options=adblocker)
             logging.info("WebDriver started successfully")
@@ -121,7 +122,7 @@ class AniMATION:
         if self.command == 'enable':
             try:
                 self.skipIntro()
-                self.nextEpisode()
+                self.skipOutro()
                 print("Features enabled.")
                 return True
             except Exception as e:
@@ -176,6 +177,8 @@ class AniMATION:
                     if skipOutro.is_displayed() and skipOutro.is_enabled():
                         skipOutro.click()
                         print("Next episode loaded successfully.")
+                        nextEP = f"{self.animUrl}?ep={self.episodeNum + 1}"
+                        self.driver.get(nextEP)
                         skipped = True 
                 except Exception as e:
                     print(f"Error checking time or clicking button: {e}")
@@ -197,7 +200,7 @@ class AniMATION:
             self.clickAnimeFromList()
             self.watchAnime()
         elif self.mode == 'schedule':
-            self.animeScrape.recentAnime()
+            self.animeScrape.animeSchedule()
         return self.driver
 
     def quit(self):

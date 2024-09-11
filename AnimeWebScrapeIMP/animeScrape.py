@@ -4,16 +4,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import pandas as pd
 import datetime
-import os
-import requests
-import tempfile
 
 class AnimeScrape:
     def __init__(self, driver):
         self.driver = driver
+        self.BaseUrl = 'https://9animetv.to/'
+        self.driver.get(self.BaseUrl)
 
     def animeSchedule(self):
-        self.driver.get('https://9animetv.to/home')
         try:
             seeMoreDetails = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, '//*[@id="scl-more"]'))
@@ -50,7 +48,6 @@ class AnimeScrape:
         self.driver.quit()
     
     def recentAnime(self):
-        self.driver.get('https://9animetv.to/home')
         try:
             WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, '//div[@class="film_list-wrap"]'))
@@ -72,4 +69,21 @@ class AnimeScrape:
             print("Anime list not loaded on the page.")
         except Exception as e:
             print(f"Error occurred: {e}")
+        
+        self.driver.close()
+        self.driver.quit()
+    
+    def filterBasedOnIntrestBased(self):
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, ''))
+            )
+
+        except TimeoutException:
+            print("Anime list not loaded on the page.")
+        except Exception as e:
+            print(f"Error occurred: {e}")
+        
+        self.driver.close()
+        self.driver.quit()
 
