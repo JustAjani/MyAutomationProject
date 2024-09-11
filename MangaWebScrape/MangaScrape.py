@@ -132,18 +132,17 @@ class MangaScrape:
         return logging.info("Manga Chapter Clikced on: ", self.mangaChapter)
     
     def nextChapter(self):
-        self.driver.get(self.driver.current_url)
         nextChap = False
         startTime = time.time()
 
         while not nextChap and (time.time() - startTime) < 1380:
             try:
-                WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_all_elements_located((By.XPATH, '//a[@class="navi-change-chapter-btn-next a-h"]'))
+                nextChapterBTN = WebDriverWait(self.driver, 10).until(
+                    EC.visibility_of_element_located((By.XPATH, '(//a[@class="navi-change-chapter-btn-next a-h"])[last()]'))
                 )
-
-                nextChapterBTN = self.driver.find_element(By.XPATH, '//a[@class="navi-change-chapter-btn-next a-h"]')
                 
+                input("Press Enter to proceed to the next chapter or type 'n' to cancel: ")
+
                 if nextChapterBTN.is_enabled() and nextChapterBTN.is_displayed():
                     nextChapterBTN.click()
                     logging.info("Clicked on next chapter")
@@ -169,18 +168,20 @@ class MangaScrape:
             logging.info("Failed to proceed to next chapter after several attempts.")
 
     def closeBrowser(self):
-        input("Press Enter To Exit... ")
-        sys.exit()
-        self.driver.quit()
-        logging.info("WebDriver closed successfully")
-        self.driver.close()
-        logging.info("Browser closed successfully")
+        if input("Press Enter to exit or type 'x' to keep session open: ").lower() == "x":
+            logging.info("Session remains open for manual control.")
+        else:
+            self.driver.quit()
+            logging.info("WebDriver closed successfully")
+            self.driver.close()
+            logging.info("Browser closed successfully")
+            sys.exit()
 
     def run(self):
         self.searchManga()
         self.clickMangaFromList()
         self.loadMangaNFindChapters()
-        # self.nextChapter()
+        self.nextChapter()
         self.closeBrowser()
 
 MangaScrape().run()
