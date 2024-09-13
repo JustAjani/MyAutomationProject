@@ -8,17 +8,23 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 import logging
+from logging.handlers import RotatingFileHandler
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 import sys
 import time
 import re
+sys.path.append('C:\\Users\\ajani\\Downloads\\webscrapping 101\\MyAutomationProject')
+from Logs.Alogger import setupLogging
+
+print("Import successful!")
 
 class MangaScrape:
     def __init__(self):
         self.mangaName = input("Enter manga name: ").lower()
         self.mangaNum = int(input("Enter manga chapter number: "))
         self.mangaChapter = f'chapter {self.mangaNum}'
+        self.logger = setupLogging(ERROR="MANGAERROR.log", WARNING="MANGAWARNING.log", INFO="MANGAINFO.log")
         service = Service(ChromeDriverManager().install())
         self.adblocker = Options()
         self.adblockerPath =  r'C:\\Users\\ajani\\Downloads\\MLOMIEJDFKOLICHCFLEJCLCBMPEANIIJ_10_4_3_0.crx'
@@ -38,18 +44,18 @@ class MangaScrape:
                 EC.presence_of_element_located((By.XPATH, '//input[@id="search_story"]'))
             )
             search.send_keys(self.mangaName + Keys.ENTER)
-            logging.info("Manga searched successfully")
+            self.logger.info("Manga searched successfully")
         except Exception as e:
-            logging.error("Failed to search manga: %s", e)
+            self.logger.error("Failed to search manga: %s", e)
         
-        return logging.info("Manga searched: ", self.mangaName)
+        return self.logger.info("Manga searched: ", self.mangaName)
 
     def clickMangaFromList(self):
         self.driver.get(self.driver.current_url)
         try:
             logging.info("Clicking on manga: ", self.mangaName)
             WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//div[@class="panel_story_list"]'))
+                EC.element_to_be_clickable((By.XPATH, '//div[@class="panel_story_list"]'))
             )
             mangaList = self.driver.find_elements(By.XPATH, './/h3[@class="story_name"]/a',)
     
@@ -61,25 +67,25 @@ class MangaScrape:
                         logging.info("Clicked on manga: %s", manga.text)
                         break
                 except StaleElementReferenceException:
-                    logging.error("Stale element reference exception: %s", manga.text)
+                    self.logger.error("Stale element reference exception: %s", manga.text)
                     mangaList = self.driver.find_elements(By.XPATH, './/h3[@class="story_name"]/a')
                     return self.clickMangaFromList()
         
         except StaleElementReferenceException:
-            logging.error("Stale element reference exception: %s", self.mangaName)
+            self.logger.error("Stale element reference exception: %s", self.mangaName)
         except NoSuchElementException:
-            logging.error("Manga not found for clicking")
+            self.logger.error("Manga not found for clicking")
         except TimeoutException:
-            logging.error("Element not found for clicking")
+            self.logger.error("Element not found for clicking")
         except Exception as e:
-            logging.error("Failed to click manga: %s", str(e))
+            self.logger.error("Failed to click manga: %s", str(e))
         
-        return logging.info("clicked on manga: ", self.mangaName)
+        return self.logger.info("clicked on manga: ", self.mangaName)
     
     def loadMangaNFindChapters(self):
         self.driver.get(self.driver.current_url)
         try:
-            logging.info("Loading manga: ", self.mangaName)
+            self.logger.info("Loading manga: ", self.mangaName)
             chapters = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, '//ul[@class="row-content-chapter"]'))
             )
@@ -99,14 +105,14 @@ class MangaScrape:
                             self.driver.execute_script("arguments[0].scrollIntoView(true);", chapter)
                             WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable(chapter))
                             chapter.click()
-                            logging.info("Clicked on chapter: ", chapter.text)
+                            self.logger.info("Clicked on chapter: ", chapter.text)
                             found = True
                             break 
                     except NoSuchElementException:
-                        logging.error("Chapter not found")
+                        self.logger.error("Chapter not found")
                     except StaleElementReferenceException:
                         chapter = chapters.find_elements(By.XPATH, './li/a')
-                        logging.info("Chapter list refreshed")
+                        self.logger.info("Chapter list refreshed")
                         break
             
                 if not found:
@@ -120,14 +126,14 @@ class MangaScrape:
                         logging.error("Failed to scroll: %s", e)
             
             if not found:
-                logging.error(f"Chapter {self.mangaNum} not found after scrolling.")
+                self.logger.error(f"Chapter {self.mangaNum} not found after scrolling.")
 
         except TimeoutException:
-            logging.error("Element not found for loading chapters")
+            self.logger.error("Element not found for loading chapters")
         except NoSuchElementException:
-            logging.error("Manga not found")
+            self.logger.error("Manga not found")
         except Exception as e:
-            logging.error("Failed to load manga: %s", e)
+            self.logger.error("Failed to load manga: %s", e)
 
         return logging.info("Manga Chapter Clikced on: ", self.mangaChapter)
     
@@ -145,36 +151,36 @@ class MangaScrape:
 
                 if nextChapterBTN.is_enabled() and nextChapterBTN.is_displayed():
                     nextChapterBTN.click()
-                    logging.info("Clicked on next chapter")
+                    self.logger.info("Clicked on next chapter")
                     nextChap = True
                 else:
-                    logging.info("Next chapter button not found, attempting to find again...")
+                    self.logger.info("Next chapter button not found, attempting to find again...")
                 nextChap = False
 
             except StaleElementReferenceException:
-                logging.error("StaleElementReferenceException encountered, retrying...")
+                self.logger.error("StaleElementReferenceException encountered, retrying...")
                 time.sleep(1) 
             except TimeoutException:
-                logging.error("TimeoutException: Element not found for next chapter")
+                self.logger.error("TimeoutException: Element not found for next chapter")
                 break  
             except NoSuchElementException:
-                logging.error("NoSuchElementException: Manga not found")
+                self.logger.error("NoSuchElementException: Manga not found")
                 break  
             except Exception as e:
-                logging.error("Failed to load manga: %s", str(e))
+                self.logger.error("Failed to load manga: %s", str(e))
                 break 
 
         if not nextChap:
-            logging.info("Failed to proceed to next chapter after several attempts.")
+            self.logger.info("Failed to proceed to next chapter after several attempts.")
 
     def closeBrowser(self):
         if input("Press Enter to exit or type 'x' to keep session open: ").lower() == "x":
-            logging.info("Session remains open for manual control.")
+            self.logger.info("Session remains open for manual control.")
         else:
             self.driver.quit()
-            logging.info("WebDriver closed successfully")
+            self.logger.info("WebDriver closed successfully")
             self.driver.close()
-            logging.info("Browser closed successfully")
+            self.logger.info("Browser closed successfully")
             sys.exit()
 
     def run(self):
