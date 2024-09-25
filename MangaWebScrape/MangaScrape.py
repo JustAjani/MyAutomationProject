@@ -24,7 +24,7 @@ class MangaScrape:
         self.mangaName = input("Enter manga name: ").lower()
         self.mangaNum = int(input("Enter manga chapter number: "))
         self.mangaChapter = f'chapter {self.mangaNum}'
-        self.logger = setupLogging(ERROR="MANGAERROR.log", WARNING="MANGAWARNING.log", INFO="MANGAINFO.log")
+        self.logger = setupLogging(ERROR="MANGAERROR.log", WARNING="MANGAWARNING.log", INFO="MANGAINFO.log", CRITICAL="MANGACRITICAL.log")
         service = Service(ChromeDriverManager().install())
         self.adblocker = Options()
         self.adblockerPath =  r'C:\\Users\\ajani\\Downloads\\MLOMIEJDFKOLICHCFLEJCLCBMPEANIIJ_10_4_3_0.crx'

@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-def setupLogging(ERROR, WARNING, INFO):
+def setupLogging(ERROR, WARNING, INFO, CRITICAL):
     logger = logging.getLogger('Logger')
     logDrt = r'C:\Users\ajani\Downloads\webscrapping 101\MyAutomationProject\Logs'
     logger.setLevel(logging.DEBUG)  # Capture all logs at DEBUG and above
@@ -21,6 +21,12 @@ def setupLogging(ERROR, WARNING, INFO):
     # Handler for ERROR messages
     errorHandler = RotatingFileHandler(f'{logDrt}/{ERROR}', maxBytes=10000, backupCount=5)
     errorHandler.setLevel(logging.ERROR)
+    errorFormatter = logging.Formatter('%(asctime)s - ERROR - %(message)s')
+    errorHandler.setFormatter(errorFormatter)
+    
+    # Handler for CRITICAL messages
+    errorHandler = RotatingFileHandler(f'{logDrt}/{CRITICAL}', maxBytes=10000, backupCount=5)
+    errorHandler.setLevel(logging.CRITICAL)
     errorFormatter = logging.Formatter('%(asctime)s - ERROR - %(message)s')
     errorHandler.setFormatter(errorFormatter)
 
