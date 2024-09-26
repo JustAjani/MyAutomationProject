@@ -39,7 +39,6 @@ async def context(playwrightInstance):
 @pytest_asyncio.fixture(scope="function")
 async def page(context):
     page = await context.new_page()
-    page.on("console", lambda msg: print(f"Console message: {msg.type}: {msg.text}"))
     yield page
     await page.close()
 
@@ -54,10 +53,10 @@ async def test_scrape(page):
             logger.info("Path already exists")
         route = os.path.join(dir, 'NVDA.csv')
         
-        await page.goto('https://finance.yahoo.com/chart/NVDA', timeout=30000, wait_until='networkidle')
+        await page.goto('https://finance.yahoo.com/chart/NVDA', timeout=30000, wait_until='domcontentloaded')
         page.on('response', lambda response: print(f"Received response with status {response.status} from {response.url}"))
 
-        await page.wait_for_load_state("networkidle", timeout=30000)
+        await page.wait_for_load_state("domcontentloaded", timeout=30000)
         stockPrices = page.locator('fin-streamer[data-test="qsp-price"]/span')
         priceChange = page.locator('fin-streamer[data-test="qsp-price-change"]/span')
         percentageChange = page.locator('fin-streamer[data-field="regularMarketChangePercent"]/span')
@@ -83,6 +82,7 @@ async def test_scrape(page):
                         'Timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
                     })
                     logger.info(f"Stock Prices: ${stockPricesTxt} Price Change by: ${priceChangeTxt} Percentage Change: %{percentageChangeTxt}" )
+                    page.on('console', lambda msg: print(f"Console message: {msg.type}: {msg.text}"))
                 else:
                     logger.info("Data not found, retrying...")
                 await asyncio.sleep(1) 
