@@ -1,0 +1,10 @@
+2024-09-25 15:26:07,186 - Logger - WARNING - Error Found: [WinError 3] The system cannot find the path specified: 'STONKMarket/stokedata'
+Traceback (most recent call last):
+  File "C:\Users\ajani\Downloads\webscrapping 101\MyAutomationProject\STONKMarket\test_stonk.py", line 49, in test_scrape
+    os.mkdir('STONKMarket/stokedata')
+FileNotFoundError: [WinError 3] The system cannot find the path specified: 'STONKMarket/stokedata'
+2024-09-26 06:17:03,583 - Logger - WARNING - Error Found: [WinError 183] Cannot create a file when that file already exists: 'MyAutomationProject/STONKMarket/stokedata'
+Traceback (most recent call last):
+  File "C:\Users\ajani\Downloads\webscrapping 101\MyAutomationProject\STONKMarket\test_stonk.py", line 49, in test_scrape
+    os.mkdir('MyAutomationProject/STONKMarket/stokedata')
+FileExistsError: [WinError 183] Cannot create a file when that file already exists: 'MyAutomationProject/STONKMarket/stokedata'
