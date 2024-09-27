@@ -16,3 +16,110 @@ FileExistsError: [WinError 183] Cannot create a file when that file already exis
 2024-09-26 06:40:19,486 - INFO - Navigating to page
 2024-09-26 06:43:42,391 - INFO - Path already exists
 2024-09-26 06:43:42,399 - INFO - Navigating to page
+2024-09-27 06:12:50,168 - INFO - Path already exists
+2024-09-27 06:12:50,168 - INFO - Path already exists
+2024-09-27 06:12:50,168 - INFO - Navigating to website
+2024-09-27 06:12:50,168 - INFO - Navigating to website
+2024-09-27 06:13:20,174 - INFO - Error during page.goto: 
+2024-09-27 06:13:20,174 - INFO - Error during page.goto: 
+2024-09-27 06:13:20,177 - INFO - Error in test_scrape: 
+Traceback (most recent call last):
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\asyncio\tasks.py", line 490, in wait_for
+    return fut.result()
+           ^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\async_api\_generated.py", line 8810, in goto
+    await self._impl_obj.goto(
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py", line 524, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py", line 145, in goto
+    await self._channel.send("goto", locals_to_params(locals()))
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py", line 59, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py", line 512, in wrap_api_call
+    return await cb()
+           ^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py", line 88, in inner_send
+    done, _ = await asyncio.wait(
+              ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\asyncio\tasks.py", line 418, in wait
+    return await _wait(fs, timeout, return_when, loop)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\asyncio\tasks.py", line 525, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\ajani\Downloads\webscrapping 101\MyAutomationProject\STONKMarket\test_stonk.py", line 55, in test_scrape
+    await asyncio.wait_for(page.goto('https://finance.yahoo.com/chart/NVDA'), timeout=30)
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\asyncio\tasks.py", line 492, in wait_for
+    raise exceptions.TimeoutError() from exc
+TimeoutError
+2024-09-27 06:13:20,177 - INFO - Error in test_scrape: 
+Traceback (most recent call last):
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\asyncio\tasks.py", line 490, in wait_for
+    return fut.result()
+           ^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\async_api\_generated.py", line 8810, in goto
+    await self._impl_obj.goto(
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py", line 524, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py", line 145, in goto
+    await self._channel.send("goto", locals_to_params(locals()))
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py", line 59, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py", line 512, in wrap_api_call
+    return await cb()
+           ^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py", line 88, in inner_send
+    done, _ = await asyncio.wait(
+              ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\asyncio\tasks.py", line 418, in wait
+    return await _wait(fs, timeout, return_when, loop)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\asyncio\tasks.py", line 525, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\ajani\Downloads\webscrapping 101\MyAutomationProject\STONKMarket\test_stonk.py", line 55, in test_scrape
+    await asyncio.wait_for(page.goto('https://finance.yahoo.com/chart/NVDA'), timeout=30)
+  File "C:\Users\ajani\AppData\Local\Programs\Python\Python311\Lib\asyncio\tasks.py", line 492, in wait_for
+    raise exceptions.TimeoutError() from exc
+TimeoutError
+2024-09-27 06:14:24,483 - INFO - Path already exists
+2024-09-27 06:14:24,483 - INFO - Path already exists
+2024-09-27 06:14:24,483 - INFO - Navigating to website
+2024-09-27 06:14:24,483 - INFO - Navigating to website
+2024-09-27 06:16:08,887 - INFO - Path already exists
+2024-09-27 06:16:08,887 - INFO - Path already exists
+2024-09-27 06:16:08,895 - INFO - Navigating to website
+2024-09-27 06:16:08,895 - INFO - Navigating to website
+2024-09-27 06:57:02,993 - INFO - Path already exists
+2024-09-27 06:57:02,993 - INFO - Path already exists
+2024-09-27 06:57:02,998 - INFO - Navigating to website
+2024-09-27 06:57:02,998 - INFO - Navigating to website
+2024-09-27 08:33:15,170 - INFO - Path already exists
+2024-09-27 08:33:15,178 - INFO - Navigating to website
+2024-09-27 08:35:16,862 - INFO - Path already exists
+2024-09-27 08:35:16,862 - INFO - Navigating to website
+2024-09-27 08:35:16,862 - INFO - Navigated to about:blank
+2024-09-27 08:36:22,487 - INFO - Path already exists
+2024-09-27 08:36:22,495 - INFO - Navigating to website
+2024-09-27 08:42:34,456 - INFO - Path already exists
+2024-09-27 08:42:34,456 - INFO - Navigating to website
+2024-09-27 08:44:37,637 - INFO - Path already exists
+2024-09-27 08:44:37,645 - INFO - Navigating to website
+2024-09-27 08:48:11,673 - INFO - Path already exists
+2024-09-27 08:48:11,675 - INFO - Navigating to website
+2024-09-27 08:48:46,406 - INFO - Path already exists
+2024-09-27 08:48:46,408 - INFO - Navigating to website
+2024-09-27 08:50:44,701 - INFO - Path already exists
+2024-09-27 08:50:44,703 - INFO - Navigating to website
