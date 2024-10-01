@@ -10,6 +10,9 @@ from playwright.sync_api import sync_playwright, Page, Route, Request, TimeoutEr
 sys.path.append('C:\\Users\\ajani\\Downloads\\webscrapping 101\\MyAutomationProject')
 from Logs.Alogger import setupLogging
 
+sys.path.append('C:\\Users\\ajani\\Downloads\\webscrapping 101\\MyAutomationProject\\STONKMarket')
+from STONKMarket.dataFix import StockDataAnalyzer
+
 os.environ['DEBUG'] = 'pw:api,pw:browser*'
 logger = setupLogging('stonkError.log', 'stonkWarning.log', 'stonkInfo.log', 'stonkCritical.log')
 
@@ -49,6 +52,7 @@ def page(context):
 def test_scrape(page: Page):
     try:
         dir = 'MyAutomationProject/STONKMarket/stokedata'
+        graphdir = 'MyAutomationProject/STONKMarket/graph'
         os.makedirs(dir, exist_ok=True)
         logger.info("Path created" if not os.path.exists(dir) else "Path already exists")
         route = os.path.join(dir, 'NVDA.csv')
@@ -117,6 +121,7 @@ def test_scrape(page: Page):
 
         if StockData:
             pd.DataFrame(StockData).to_csv(route, mode='a', header=not os.path.exists(route), index=False)
+            StockDataAnalyzer(csvRoute=route, graphRoute=graphdir).run()
             logger.info(f"Data saved to {route}")
         else:
             logger.warning("No data was collected during the scraping session")
@@ -130,4 +135,4 @@ def test_scrape(page: Page):
         raise
 
 if __name__ == "__main__":
-    pytest.main(['test_stonk.py'])
+    test_scrape()
