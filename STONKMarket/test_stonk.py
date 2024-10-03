@@ -1,12 +1,12 @@
 import pytest
 import datetime
-from apscheduler.schedulers.blocking import BlockingScheduler
+import schedule
 import time
 import sys
 import pandas as pd
 import os
-from playwright.sync_api import sync_playwright, Page, Route, Request, TimeoutError
 
+from playwright.sync_api import sync_playwright, Page, Route, Request, TimeoutError
 sys.path.append('C:\\Users\\ajani\\Downloads\\webscrapping 101\\MyAutomationProject')
 from Logs.Alogger import setupLogging
 
@@ -134,5 +134,12 @@ def test_scrape(page: Page):
         logger.exception(f"Error in test_scrape: {str(e)}")
         raise
 
-if __name__ == "__main__":
-    test_scrape()
+def job():
+    try:
+        pytest.main(["-s", "test_stonk.py"])
+    except Exception as e:
+        logger.exception(f"Error in job: {str(e)}")
+        raise
+
+#stock market open at 9:30am/8:30am depending on timezone
+schedule.every().day.at('8:30').do(job)
